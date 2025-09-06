@@ -1,0 +1,14 @@
+{
+  "version": "0.2",
+  "words": [
+    "Turbopack"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    ".next/**",
+    "build/**",
+    "dist/**",
+    "*.lock",
+    "package-lock.json"
+  ]
+}

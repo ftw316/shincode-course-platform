@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "node",
+        "node_modules/@supabase/mcp-server-postgrest/dist/stdio.js",
+        "--apiUrl",
+        "https://dwbtvgtevbujibpoiuxo.supabase.co/rest/v1",
+        "--apiKey",
+        "sbp_0fde1276948c91f94dfb6de496af23a3b6626268",
+        "--schema",
+        "public"
+      ]
+    }
+  }
+}
