@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
+import { VideoWithRelations } from '@/lib/supabase/types'
 
 export default async function AdminVideos() {
   const supabase = await createClient()
@@ -105,8 +106,7 @@ export default async function AdminVideos() {
                       
                       <div className="text-sm text-gray-600 space-y-1">
                         <p>
-                          講座: {/* @ts-expect-error Supabase relationship type */}
-                          {video.sections.courses.title} &gt; {video.sections.title}
+                          講座: {(video as VideoWithRelations).sections.courses.title} &gt; {(video as VideoWithRelations).sections.title}
                         </p>
                         <p className="truncate">
                           説明: {video.description || '説明なし'}
@@ -133,7 +133,7 @@ export default async function AdminVideos() {
                       </a>
                     )}
                     <Link
-                      href={`/courses/${/* @ts-expect-error Supabase relationship type */ video.sections.courses.id}/videos/${video.id}`}
+                      href={`/courses/${(video as VideoWithRelations).sections.courses.id}/videos/${video.id}`}
                       className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                     >
                       視聴

@@ -46,8 +46,33 @@ export interface UserProfile {
   user_id: string
   display_name: string | null // ユーザーが編集可能な表示名
   avatar_url: string | null   // プロフィール画像URL
+  role?: string // 管理者権限用（'user' | 'admin'）
   created_at: string
   updated_at: string
+}
+
+// Supabase関係性クエリ用の型定義
+export interface VideoWithRelations extends Video {
+  sections: {
+    id: string
+    title: string
+    courses: {
+      id: string
+      title: string
+    }
+  }
+}
+
+export interface SectionWithCourse extends Section {
+  courses: Course | Course[] // Supabaseの関係性クエリでは配列または単体オブジェクト
+}
+
+export interface CourseWithSections extends Course {
+  sections: SectionWithVideos[]
+}
+
+export interface SectionWithVideos extends Section {
+  videos: Video[]
 }
 
 // auth.userから取得する情報の型定義

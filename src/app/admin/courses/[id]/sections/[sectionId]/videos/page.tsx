@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { SectionWithCourse } from '@/lib/supabase/types'
 
 interface VideoManagementProps {
   params: Promise<{ id: string; sectionId: string }>
@@ -143,8 +144,12 @@ export default async function VideoManagement({ params }: VideoManagementProps) 
             <Link href="/admin/courses" className="hover:text-gray-700">講座管理</Link>
             <span>/</span>
             <Link href={`/admin/courses/${resolvedParams.id}`} className="hover:text-gray-700">
-              {/* @ts-expect-error type issue */}
-              {section && Array.isArray(section.courses) ? section.courses[0]?.title : section?.courses?.title || '講座'}
+              {(() => {
+                const sectionWithCourse = section as SectionWithCourse
+                return Array.isArray(sectionWithCourse.courses) 
+                  ? sectionWithCourse.courses[0]?.title 
+                  : sectionWithCourse.courses?.title || '講座'
+              })()}
             </Link>
             <span>/</span>
             <Link href={`/admin/courses/${resolvedParams.id}/sections`} className="hover:text-gray-700">

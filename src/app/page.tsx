@@ -91,23 +91,28 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
         )}
         
-        {/* Navigation - Udemy Style */}
+        {/* Navigation - 改良版 */}
         <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm" suppressHydrationWarning>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-4 lg:gap-8">
                 <div className="text-2xl font-bold text-purple-600">
                   ShinCode
                 </div>
-                <div className="hidden md:flex items-center gap-6">
-                  <button className="text-gray-700 hover:text-purple-600 font-medium transition-colors">
-                    カテゴリー
-                  </button>
+                <div className="hidden md:flex items-center gap-4 lg:gap-6">
+                  <div className="relative">
+                    <button className="text-gray-700 hover:text-purple-600 font-medium transition-colors flex items-center gap-1">
+                      カテゴリー
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
                   <div className="relative">
                     <input 
                       type="text" 
                       placeholder="何を学びたいですか？" 
-                      className="w-96 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-64 lg:w-80 xl:w-96 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
                     <button className="absolute right-3 top-2.5">
                       <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,14 +122,30 @@ export default async function Home({ searchParams }: HomeProps) {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <button className="hidden lg:block text-gray-700 hover:text-purple-600 font-medium transition-colors">
-                  ビジネス向けUdemy
+              <div className="flex items-center gap-3 lg:gap-4">
+                <button className="hidden lg:block text-gray-700 hover:text-purple-600 font-medium transition-colors text-sm">
+                  ShinCodeビジネス
                 </button>
-                <button className="hidden lg:block text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                <button className="hidden lg:block text-gray-700 hover:text-purple-600 font-medium transition-colors text-sm">
                   講師になる
                 </button>
                 <AuthButton />
+              </div>
+            </div>
+            
+            {/* モバイル用検索バー */}
+            <div className="md:hidden pb-3">
+              <div className="relative">
+                <input 
+                  type="text" 
+                  placeholder="コースを検索..." 
+                  className="w-full px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                <button className="absolute right-3 top-2.5">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
@@ -373,7 +394,7 @@ export default async function Home({ searchParams }: HomeProps) {
               <div>
                 <h3 className="font-semibold mb-4">ShinCode</h3>
                 <ul className="space-y-2 text-sm text-gray-300">
-                  <li><a href="#" className="hover:text-white">ShinCodeビジネス</a></li>
+                  <li><a href="#" className="hover:text-white">法人向けサービス</a></li>
                   <li><a href="#" className="hover:text-white">講師になる</a></li>
                   <li><a href="#" className="hover:text-white">モバイルアプリ</a></li>
                 </ul>

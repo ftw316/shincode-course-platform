@@ -131,6 +131,7 @@ user_profiles (id, user_id, display_name, avatar_url, role, created_at, updated_
 - ✅ **完了**: 進捗管理機能
 - ✅ **完了**: 管理画面（CRUD操作）
 - ✅ **完了**: パフォーマンス最適化（画像・コード分割・DB）
+- ✅ **完了**: Row Level Security (RLS) セキュリティ実装
 - 🔄 **進行中**: UI/UX改善・追加機能開発
 
 ## Next.js App Router ベストプラクティス
@@ -220,6 +221,14 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_anon_key
 - サーバーがクッキーからユーザーセッションを取得する際、誰でも偽装可能なため注意
 - ページ保護時は細心の注意を払う
 
+### Row Level Security (RLS) 実装済み
+- **全テーブルでRLS有効化**: courses, sections, videos, user_progress, user_profiles
+- **ロールベースアクセス制御**: 一般ユーザー(user)・管理者(admin)の権限分離
+- **データベースレベルのセキュリティ**: SQLインジェクション完全防止
+- **管理者権限制御**: `is_admin()` 関数による厳密な権限チェック
+- **プレビュー動画制御**: 未認証ユーザーはプレビューのみ、認証ユーザーは全動画アクセス可能
+- **詳細なドキュメント**: `doc/009-rls-security-implementation.md` 参照
+
 ### Middleware実装要件
 `middleware.ts` で以下を実装:
 - 認証トークンのリフレッシュ
@@ -305,8 +314,29 @@ const supabase = createClient() // from '@/lib/supabase/client'
 
 このプロジェクトはMCP (Model Context Protocol) サーバーを活用:
 - **Supabase PostgREST**: 直接データベース操作
-- **Context7**: ライブラリドキュメント取得
+- **Context7**: ライブラリドキュメント取得  
 - **Serena**: コードベース分析とシンボリック操作
+
+## セキュリティ実装状況
+
+### 🔐 実装済みセキュリティ機能
+- ✅ **Row Level Security (RLS)**: 全テーブルで完全実装
+- ✅ **認証システム**: Supabase Auth + Google OAuth
+- ✅ **ロールベースアクセス制御**: user/admin権限分離
+- ✅ **管理者権限管理**: トリガーベースのロール変更制限
+- ✅ **データベース保護**: SQLインジェクション完全防止
+
+### 📋 セキュリティファイル
+- `supabase/migrations/003-admin-rls-policies.sql` - 管理者用RLSポリシー
+- `supabase/migrations/004-enhanced-access-policies.sql` - 強化されたアクセス制御
+- `doc/009-rls-security-implementation.md` - セキュリティ実装詳細ドキュメント
+- `MIGRATION_INSTRUCTIONS.md` - RLSマイグレーション手順
+- `GET_USER_ID_GUIDE.md` - 管理者権限設定ガイド
+
+### ⚠️ 既知のセキュリティ考慮事項
+- **オープンリダイレクト**: `src/app/auth/callback/route.ts` のnextパラメータ検証
+- **本番ログ制限**: console.error の本番環境制限推奨
+- **環境変数保護**: .env.local のgitignore追加推奨
 
 ## サンプルデータ
 
