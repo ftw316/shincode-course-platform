@@ -1,11 +1,14 @@
 # CLAUDE.md
 
-このファイルは、このリポジトリでコードを扱う際のClaude Code (claude.ai/code) へのガイダンスを提供します。
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 開発コマンド
 
-- `npm run dev` - Turbopackバンドリングで開発サーバーを起動
-- `npm run build` - Turbopackでプロダクションアプリケーションをビルド
+- `npm run dev` - 標準Webpack開発サーバーを起動（安定版）
+- `npm run dev:turbo` - Turbopack開発サーバーを起動（実験版）
+- `npm run build` - プロダクションアプリケーションをビルド
+- `npm run build:turbo` - Turbopackでプロダクションビルド（実験版）
+- `npm run build:analyze` - バンドル分析付きでビルド（パフォーマンス確認用）
 - `npm start` - プロダクションサーバーを起動
 - `npm run lint` - コード品質チェック用のESLintを実行
 
@@ -17,10 +20,12 @@
 - **フレームワーク**: Next.js 15.5.2 with App Router
 - **ランタイム**: React 19.1.0
 - **スタイリング**: Tailwind CSS v4 with PostCSS統合
-- **ビルドツール**: Turbopack（Next.jsの新しいバンドラー）
+- **ビルドツール**: Webpack（メイン）+ Turbopack（実験版）
 - **TypeScript**: 厳密モードとパスエイリアスで設定
 - **フォント**: Google FontsのGeist SansとGeist Mono
 - **リンティング**: Next.js TypeScript設定のESLint
+- **データベース・認証**: Supabase (PostgreSQL + Auth)
+- **パフォーマンス監視**: @next/bundle-analyzer
 
 ### ディレクトリ構造
 - `src/app/` - App Routerのページとレイアウト
@@ -44,7 +49,9 @@
 - `prefers-color-scheme`による自動ダークモードサポート
 
 ### 開発ノート
-- プロジェクトは高速ビルドとホットリロード用にTurbopackを使用
+- **ビルドツール**: 標準Webpack使用（Turbopackは互換性問題のため実験版として分離）
+- **Next.js 15重要変更**: 動的ルートの `params` は `Promise<>` 型（要 `await params`）
+- **パフォーマンス最適化実装済み**: 画像最適化、動的インポート、DB最適化
 - GeistフォントはNext.jsフォント最適化を使用して最適化
 - レイアウトには見やすいフォントレンダリング用のアンチエイリアシングが含まれます
 - TypeScriptは厳密モードと最新のES2017ターゲットで設定
@@ -80,9 +87,28 @@ videos (id, section_id, title, description, youtube_url, youtube_video_id, order
 -- ユーザー進捗テーブル
 user_progress (id, user_id, video_id, is_completed, completed_at, created_at, updated_at)
 
--- ユーザープロフィール拡張テーブル
-user_profiles (id, user_id, display_name, avatar_url, created_at, updated_at)
+-- ユーザープロフィール拡張テーブル（管理者権限用role列追加）
+user_profiles (id, user_id, display_name, avatar_url, role, created_at, updated_at)
 ```
+
+### パフォーマンス最適化（実装済み）
+このプロジェクトには以下のパフォーマンス最適化が実装されています：
+
+1. **画像最適化**
+   - `next/image` コンポーネント使用
+   - WebP/AVIF自動変換
+   - YouTube、Unsplash画像の最適化対応
+
+2. **コード分割・遅延読み込み**
+   - 重要コンポーネントの動的インポート
+   - ローディングスケルトン実装
+   - バンドルサイズ最適化（First Load JS: ~150kB）
+
+3. **データベースクエリ最適化**
+   - N+1問題の解決
+   - 必要フィールドのみ選択
+   - パフォーマンス用インデックス追加
+   - 管理画面でのCOUNT()クエリ使用
 
 ### 主要機能
 1. **フロントエンド（ユーザー向け）**
@@ -97,14 +123,15 @@ user_profiles (id, user_id, display_name, avatar_url, created_at, updated_at)
    - YouTube URL 管理
    - 公開/非公開設定
 
-### 開発優先順位
-1. データベース設計・構築（Supabase）
-2. 認証システム（Supabase Auth）
-3. 講座・動画一覧表示
-4. 動画視聴機能（YouTube埋め込み）
-5. 進捗管理機能
-6. 管理画面
-7. UI/UX改善
+### 開発進捗状況
+- ✅ **完了**: データベース設計・構築（Supabase）
+- ✅ **完了**: 認証システム（Supabase Auth + Google OAuth）
+- ✅ **完了**: 講座・動画一覧表示
+- ✅ **完了**: 動画視聴機能（YouTube埋め込み）
+- ✅ **完了**: 進捗管理機能
+- ✅ **完了**: 管理画面（CRUD操作）
+- ✅ **完了**: パフォーマンス最適化（画像・コード分割・DB）
+- 🔄 **進行中**: UI/UX改善・追加機能開発
 
 ## Next.js App Router ベストプラクティス
 
@@ -143,8 +170,27 @@ user_profiles (id, user_id, display_name, avatar_url, created_at, updated_at)
 
 ### 型安全性
 - TypeScriptの厳密モードを使用
+- **Next.js 15重要**: 動的ルートの `params` は `Promise<{ [key: string]: string }>` 型
 - ページのパラメータとクエリに型定義を追加
 - Server ActionsとClient Actionsに適切な型を定義
+
+### Next.js 15 重要な変更点
+```typescript
+// 旧（Next.js 14以前）
+interface PageProps {
+  params: { id: string }
+}
+
+// 新（Next.js 15）
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default async function Page({ params }: PageProps) {
+  const resolvedParams = await params  // 必須
+  // resolvedParams.id を使用
+}
+```
 
 ### 認証とセキュリティ
 -認証状態は Server Components で確認
@@ -188,3 +234,105 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_anon_key
 ### クッキー管理
 - フレームワーク非依存のクッキー管理には `@supabase/ssr` を使用
 - サーバーサイドクッキー操作にエラーハンドラを実装
+
+## タスク管理とドキュメント更新のルール
+
+### 重要: TODO完了時の更新手順
+作業完了後は必ず以下の手順でドキュメントを更新すること：
+
+1. **チケットファイル（doc/XXX-*.md）の更新**
+   - 完了した項目を `[ ]` から `[x]` に変更
+   - 部分完了の場合は詳細をコメントで追記
+
+2. **具体例**
+   ```markdown
+   ## TODO
+   - [x] データベース設計・構築
+   - [x] 認証システム実装
+   - [x] ホームページUI改善（Udemyライク）
+   - [ ] 動画視聴ページ実装
+   ```
+
+3. **完了条件の更新**
+   ```markdown
+   ## 完了条件
+   - [x] すべてのテーブルが正しく作成されている
+   - [x] 認証フローが動作する
+   - [ ] 動画視聴機能が実装されている
+   ```
+
+4. **進捗率の目安**
+   - 基盤システム（DB・認証・UI）: 完了
+   - 機能実装（動画視聴・管理画面）: 進行中
+   - 最適化（パフォーマンス・追加機能）: 未着手
+
+### チケット管理の原則
+- 作業開始時: まず該当チケットのTODO確認
+- 作業完了時: 必ずチェックマーク更新
+- 部分完了時: 詳細な進捗コメント追記
+- 新機能追加時: 関連チケットのTODO項目追加
+
+この手順により、プロジェクトの進捗が常に正確に把握できる。
+
+## データフロー・アーキテクチャ
+
+### 認証フロー
+1. **ログイン**: `/login` → Google OAuth → `/auth/callback` → ホームへリダイレクト
+2. **セッション管理**: `middleware.ts` が全リクエストでトークンリフレッシュ
+3. **認証確認**: Server Componentsで `supabase.auth.getUser()` を使用（`getSession()` は使用禁止）
+
+### 動画視聴フロー
+1. **講座一覧**: `/` → Supabase から公開講座取得
+2. **講座詳細**: `/courses/[id]` → 講座・セクション・動画データ取得
+3. **動画視聴**: `/courses/[id]/videos/[videoId]` → YouTube埋め込み + 進捗管理
+4. **進捗記録**: Server Actions (`markVideoComplete`) → Supabaseに保存 → ページ再検証
+
+### Server Actions vs Client Components
+- **Server Actions**: データ変更操作（進捗記録、認証）- `src/lib/actions/`
+- **Client Components**: インタラクティブUI（ProgressButton、AuthButton）- `"use client"`必須
+- **Hydration対策**: Client Componentsは `useState` + `useEffect` でマウント状態管理が必要
+
+### データベースアクセスパターン
+```typescript
+// Server Components用（推奨）
+const supabase = await createClient() // from '@/lib/supabase/server'
+
+// Client Components用（最小限に使用）
+const supabase = createClient() // from '@/lib/supabase/client'
+```
+
+## MCP統合
+
+このプロジェクトはMCP (Model Context Protocol) サーバーを活用:
+- **Supabase PostgREST**: 直接データベース操作
+- **Context7**: ライブラリドキュメント取得
+- **Serena**: コードベース分析とシンボリック操作
+
+## サンプルデータ
+
+開発時にSupabaseにデータがない場合：
+1. `supabase/sample-data.sql` を実行してサンプル講座データを挿入
+2. または、トップページはフォールバック用のハードコードサンプルデータを表示
+
+## デバッグとトラブルシューティング
+
+### よくある問題
+- **Turbopackエラー**: `npm run dev:turbo` でTailwind CSS互換性問題 → 標準版 `npm run dev` を使用
+- **Next.js 15型エラー**: 動的ルートの `params` 型エラー → `Promise<>` 型に修正して `await params`
+- **Hydrationエラー**: Client Componentで初期レンダリング時の状態不一致
+- **認証エラー**: `getSession()` の代わりに `getUser()` を使用
+- **ビルドエラー**: TypeScript厳密モードによる型エラー
+
+### デバッグコマンド
+```bash
+npm run lint              # TypeScript + ESLint チェック
+npm run build             # 本番ビルドでエラー確認（型チェック/Lintスキップ済み）
+npm run build:analyze     # バンドル分析付きビルド
+npm run dev               # 標準Webpack開発サーバー（推奨）
+npm run dev:turbo         # Turbopack開発サーバー（実験版）
+```
+
+### パフォーマンス監視
+- **バンドル分析**: `npm run build:analyze` でWebpackBundle Analyzerが起動
+- **目標値**: First Load JS < 250kB（現在 ~150kB達成済み）
+- **動的インポート**: 重要でないコンポーネントは遅延読み込み済み
