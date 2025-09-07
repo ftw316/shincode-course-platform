@@ -35,7 +35,13 @@
       "mcp__context7__get-library-docs",
       "Bash(npm view:*)",
       "Read(//c/Users/ftw31/**)",
-      "mcp__supabase__postgrestRequest"
+      "mcp__supabase__postgrestRequest",
+      "WebFetch(domain:www.udemy.com)",
+      "mcp__serena__replace_symbol_body",
+      "mcp__serena__search_for_pattern",
+      "mcp__serena__activate_project",
+      "mcp__serena__find_file",
+      "Bash(npm run build:*)"
     ],
     "deny": [
       "Bash(rm:*)",

@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
+    "build": "next build",
+    "build:turbo": "next build --turbopack",
+    "build:analyze": "set ANALYZE=true && npm run build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -17,6 +20,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15.5.2",
     "@playwright/mcp": "^0.0.36",
     "@supabase/mcp-server-postgrest": "^0.1.0",
     "@tailwindcss/postcss": "^4",
@@ -26,7 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "mcp-sequentialthinking-tools": "^0.0.3",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.1.13",
     "typescript": "^5"
   }
 }
