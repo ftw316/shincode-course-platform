@@ -38,20 +38,7 @@ export default function Navigation() {
 
   // マウント前は何も表示しない（Hydrationエラー回避）
   if (!mounted) {
-    return (
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4 lg:gap-8">
-              <div className="text-2xl font-bold text-purple-600">
-                ShinCode
-              </div>
-            </div>
-            <div className="w-20 h-8 bg-gray-200 animate-pulse rounded"></div>
-          </div>
-        </div>
-      </nav>
-    )
+    return null
   }
 
   return (

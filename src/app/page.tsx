@@ -2,7 +2,26 @@ import { createClient } from "@/lib/supabase/server";
 import type { Course } from "@/lib/supabase/types";
 import Link from "next/link";
 import Image from "next/image";
-import Navigation from "@/components/Navigation";
+import dynamic from "next/dynamic";
+
+// NavigationをSSR無効で動的インポート
+const Navigation = dynamic(() => import("@/components/Navigation"), {
+  ssr: false,
+  loading: () => (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-4 lg:gap-8">
+            <div className="text-2xl font-bold text-purple-600">
+              ShinCode
+            </div>
+          </div>
+          <div className="w-20 h-8 bg-gray-200 animate-pulse rounded"></div>
+        </div>
+      </div>
+    </nav>
+  ),
+});
 
 interface HomeProps {
   searchParams: Promise<{ error?: string }>
